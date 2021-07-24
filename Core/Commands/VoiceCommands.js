@@ -8,13 +8,13 @@ module.exports = {
     {name: "createGeneral", type: "voiceStateUpdate", description: "",
       options:{
       },
-      execute: function(oldState, newState, discord){
-        if(newState.channel && newState.channel.name === discord.getVariables("voiceStateUpdate").creationChannelName){
+      execute: function(command, oldState, newState, discord){
+        if(newState.channel && newState.channel.name === command.getManager().getVariables("voiceStateUpdate").creationChannelName){
           newState.channel.clone({
-            name: discord.getVariables("voiceStateUpdate").createdChannelName+(discord.getVariables("voiceStateUpdate").channels.length+1)
+            name: command.getManager().getVariables("voiceStateUpdate").createdChannelName+(command.getManager().getVariables("voiceStateUpdate").channels.length+1)
           }).then( chann => {
             newState.member.voice.setChannel(chann).catch(err => console.log(err))
-            discord.getVariables("voiceStateUpdate").channels.push(chann.id)
+            command.getManager().getVariables("voiceStateUpdate").channels.push(chann.id)
           }).catch(console.error)
         }
       }
@@ -22,11 +22,11 @@ module.exports = {
     {name: "removeGeneral", type: "voiceStateUpdate", description: "",
       options:{
       },
-      execute: function(oldState, newState, discord){
+      execute: function(command, oldState, newState, discord){
         if(oldState.channel && oldState.channel.members.size == 0){
-          let i = discord.getVariables("voiceStateUpdate").channels.indexOf(oldState.channel.id)
+          let i = command.getManager().getVariables("voiceStateUpdate").channels.indexOf(oldState.channel.id)
           if(i >= 0){
-            discord.getVariables("voiceStateUpdate").channels.splice(i,1)
+            command.getManager().getVariables("voiceStateUpdate").channels.splice(i,1)
             newState.guild.channels.cache.find(r => r.id == oldState.channel.id).delete();
           }
         }

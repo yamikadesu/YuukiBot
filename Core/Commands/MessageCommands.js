@@ -26,69 +26,89 @@ module.exports = {
     {name: "ping", type: "message", description:"",
       options: {
         requiredParams: 0,
-        autoDelete:true
+        autoDelete:true,
+        isAdmin: false,
+        isNSFW: false
       },
-      execute: function(text, message, discord) {
+      execute: function(command, text, message, discord) {
         return `✅ | ¡Pong! \`${discord.getClient().ws.ping}ms\``
       }
     },
     {name: "prefix", type: "message", description:"Permite modificar el \`prefijo\` del bot por el que indiques a continuación", 
       options:{
         requiredParams: 1,
-        autoDelete:true
+        autoDelete:true,
+        isAdmin: true,
+        isNSFW: false
       },
-      execute: function(text, message, discord) {
-        discord.setPrefix(text[0])
+      execute: function(command, text, message, discord) {
+        command.getManager().setPrefix(text[0])
         return `✅ | ¡Hecho! El nuevo prefijo será: \`${text[0]}\``
       }
     },
-    {name: "autoVoice", type: "message", description:"Tienes que especificar el nombre del canal de \`creación[obligatorio]\` y/o el nombre del canal \`creado[opcional]\`", 
+    {name: "autovoice", type: "message", description:"Tienes que especificar el nombre del canal de \`creación[obligatorio]\` y/o el nombre del canal \`creado[opcional]\`", 
       options:{
         requiredParams: 1,
-        autoDelete:true
+        autoDelete:true,
+        isAdmin: true,
+        isNSFW: false
       },
-      execute: function(text, message, discord) {
+      execute: function(command, text, message, discord) {
         if(text.length > 1){
-          discord.getVariables("voiceStateUpdate").createdChannelName = text[1]
+          command.getManager().getVariables("voiceStateUpdate").createdChannelName = text[1]
         }
-        discord.getVariables("voiceStateUpdate").creationChannelName = text[0]
-        return `✅ | ¡Hecho! El nuevo canal de creación automática de canales será: \`${discord.getVariables("voiceStateUpdate").creationChannelName}\` y los canales creados se llamarán\`${discord.getVariables("voiceStateUpdate").createdChannelName}X\`donde X es el número del canal`
+        command.getManager().getVariables("voiceStateUpdate").creationChannelName = text[0]
+        return `✅ | ¡Hecho! El nuevo canal de creación automática de canales será: \`${command.getManager().getVariables("voiceStateUpdate").creationChannelName}\` y los canales creados se llamarán\`${command.getManager().getVariables("voiceStateUpdate").createdChannelName}X\`donde X es el número del canal`
+      }
+    },
+    {name: "invite", type: "message", description:"Devuelve el enlace de invitación del bot a otros servidores", 
+      options:{
+        requiredParams: 0,
+        autoDelete:true,
+        isAdmin: false,
+        isNSFW: false
+      },
+      execute: function(command, text, message, discord) {
+        return "✅ | Para meterme en otros servidores necesitas abrir este enlace: <https://discord.com/api/oauth2/authorize?client_id=867503156249231361&permissions=2181033585&scope=bot>"
       }
     },
     {name: "act", type: "message", description:"", 
       options: {
         requiredParams: 0,
-        autoDelete:true
+        autoDelete:true,
+        isAdmin: false,
+        isNSFW: false
       },
-      execute: async function(text, message, discord) {
+      execute: async function(command, text, message, discord) {
         let channel = undefined;
         if(message.member){
           channel = message.member.voice.channel;
         }
         if (!channel || channel.type !== "voice") return "❌ | ¡Canal inválido! Entra en algún canal de voz";
         if (!channel.permissionsFor(message.guild.me).has("CREATE_INSTANT_INVITE")) return "❌ | Necesito el permiso de `CREATE_INSTANT_INVITE`";
-        let activity = discord.getVariables("voiceStateUpdate").ACTIVITIES[text[0] ? text[0].toLowerCase() : null];
-        if (!activity){
-          if(text[0] == "help" || text[0] == "" || !text[0]){
-            let actVar = ""
-            let activ = Object.keys(discord.getVariables("voiceStateUpdate").ACTIVITIES)
-            activ.forEach( x=>{
-              if(actVar == ""){
-                actVar = x
-              }
-              else{
-                actVar += ", "+x
-              }
-            })
-            return "✅ | Las actividades posibles son: "+actVar;
-          }
-          else{
+        let activity = undefined
+        if(text.length > 0 && text[0] != "" && text[0] != "help"){
+          activity = command.getManager().getVariables("message").ACTIVITIES[text[0].toLowerCase()];
+          if (!activity){
             activity = { 
               id: text[0], 
               name: "Custom"
             }
-          }
-        } 
+          } 
+        }
+        else{
+          let actVar = ""
+          let activ = Object.keys(command.getManager().getVariables("message").ACTIVITIES)
+          activ.forEach( x=>{
+            if(actVar == ""){
+              actVar = x
+            }
+            else{
+              actVar += ", "+x
+            }
+          })
+          return "✅ | Las actividades posibles son: "+actVar;
+        }
         //return `❌ | Actividad no encontrada`;
         return fetch(`https://discord.com/api/v8/channels/${channel.id}/invites`, {
             method: "POST",
@@ -122,17 +142,19 @@ module.exports = {
     {name: "help", type: "message", description:"", 
       options: {
         requiredParams: 0,
-        autoDelete:true
+        autoDelete:true,
+        isAdmin: false,
+        isNSFW: false
       },
-      execute: function(text, message, discord) {
+      execute: function(command, text, message, discord) {
         let messageCommands = ""
-        discord.getCommands().forEach(x =>{
+        command.getManager().getCommands().forEach(x =>{
           if(x.type == "message"){
             if(messageCommands == ""){
-              messageCommands = discord.getPrefix()+x.name
+              messageCommands = command.getManager().getPrefix()+x.name
             }
             else{
-              messageCommands += ", "+discord.getPrefix()+x.name
+              messageCommands += ", "+command.getManager().getPrefix()+x.name
             }
           }
         })

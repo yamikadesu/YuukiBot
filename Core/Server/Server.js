@@ -1,11 +1,9 @@
-const ChannelManager = require("./ChannelManager")
 const CommandsManager = require("./CommandsManager")
+
 module.exports = class Server {
   constructor(guild, serverManager){
     this.serverManager = serverManager
     this.guild = guild;
-    this.channelManager = new ChannelManager(this)
-    this.messageDelegates = []
     this.commandsManager = new CommandsManager(this)
   }
   //Api
@@ -22,15 +20,18 @@ module.exports = class Server {
   getName(){
     return this.get().name
   }
-  getChannels(){
-    return this.channelManager
-  }
   getCommandsManager(){
     return this.commandsManager
   }
-  callDelegates(type, guild, ...params){
+  getPrefix(){
+    return this.commandsManager.getPrefix()
+  }
+  getVariables(type){
+    return this.commandsManager.getVariables(type)
+  }
+  callCommands(type, guild, ...params){
     if(guild && guild.id == this.getId()){
-      this.getCommandsManager().execute(type, ...params)
+      this.commandsManager.execute(type, ...params)
     }
   }
 }
