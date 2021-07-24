@@ -38,7 +38,7 @@ module.exports = class Command {
   }
   execute(...args){
     if(this.type == "message"){
-      if(args[0] && args[0].content == this.getCommand()){
+      if(args[0] && args[0].content.indexOf(this.getCommand()) === 0){
         this.exec(...args);
       }
     }else{
