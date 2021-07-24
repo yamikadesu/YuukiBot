@@ -46,7 +46,19 @@ module.exports = {
         return `✅ | ¡Hecho! El nuevo prefijo será: \`${text[0]}\``
       }
     },
-    {name: "autovoice", type: "message", description:"Tienes que especificar el nombre del canal de \`creación[obligatorio]\` y/o el nombre del canal \`creado[opcional]\`", 
+    {name: "deletetime", type: "message", description:"Permite modificar el \`timeout(en segundos)\` de eliminación de los mensajes al poner un comando, si se pone -1 entonces no habrá timeout. Por defecto es \`10 segundos\`", 
+      options:{
+        requiredParams: 1,
+        autoDelete:true,
+        isAdmin: true,
+        isNSFW: false
+      },
+      execute: function(command, text, message, discord) {
+        command.getManager().setDeteleTimeout(text[0]*1000)
+        return `✅ | ¡Hecho! El nuevo timeout será de será: \`${text[0]}\` segundos`
+      }
+    },
+    {name: "autovoice", type: "message", description:"Tienes que especificar el nombre del canal de \`creación[obligatorio]\` y/o el nombre del canal \`creado[opcional]\`. Por defecto el canal de creación es \`Crear Canal\` y los canales creados se llaman \`💬|General-X\`", 
       options:{
         requiredParams: 1,
         autoDelete:true,
@@ -164,7 +176,8 @@ module.exports = {
           .setDescription('Estos son los comandos del bot:')
           .addFields(
             { name: 'Texto', value: messageCommands },
-            { name: 'Voz', value: 'También puedo crear nuevos canales de voz si alguien entra a algún canal llamado \"Crear Canal\"' },
+            { name: 'Voz', value: `También puedo crear nuevos canales de voz si alguien entra a algún canal llamado ${command.getManager().getVariables("voiceStateUpdate").creationChannelName} y los canales creados se llamarán: ${command.getManager().getVariables("voiceStateUpdate").createdChannelName}X` },
+            { name: 'AutoDelete', value: `Los mensajes de usuarios y del bot serán eliminados tras ${command.getManager().getDeleteTimeout()/1000} segundos` },
           )
           .setTimestamp()
         return exampleEmbed

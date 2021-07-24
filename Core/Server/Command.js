@@ -56,7 +56,7 @@ module.exports = class Command {
             args[0].channel.send(msg).then(msg => {
               args[0].delete({timeout: 100})
               if(this.options.autoDelete){
-                msg.delete({timeout: 10000})
+                msg.delete({timeout: this.manager.getDeleteTimeout()})
               }
             })
           }

@@ -7,6 +7,7 @@ module.exports = class CommandsManager {
   constructor(server){
     this.server = server
     this.prefix = "y!"
+    this.deleteTimeout = 10000
     this.variables = {
       "message": cloneDeep(MessageCommands.variables),
       "voiceStateUpdate": cloneDeep(VoiceCommands.variables)
@@ -40,6 +41,12 @@ module.exports = class CommandsManager {
   }
   setPrefix(prefix){
     this.prefix = prefix;
+  }
+  getDeleteTimeout(){
+    return this.deleteTimeout
+  }
+  setDeteleTimeout(deleteTimeout){
+    this.deleteTimeout = deleteTimeout
   }
   getVariables(type){
     return this.variables[type]
