@@ -9,5 +9,5 @@ let discord = new Discord()
  // }
 //});
 
-discord.login()
+discord.getInstance().login()
 

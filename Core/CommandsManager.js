@@ -31,7 +31,7 @@ module.exports = class CommandsManager {
   execute(type, ...args){
     this.getCommands().forEach(function (command) {
       if(command.getType() == type){
-        command.execute(...args) 
+        command.exec(...args) 
       }
     })
   }
